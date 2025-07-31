@@ -1,7 +1,6 @@
 import pandas as pd
 from playwright.sync_api import sync_playwright
 
-
 class Desafio:
     def __init__(self):
         self.link = "https://cidades.ibge.gov.br/brasil/"
@@ -41,7 +40,44 @@ class Desafio:
             with sync_playwright() as p:
                 navegador = p.chromium.launch(headless=True)
                 self.pagina = navegador.new_page()
+                self.extrair_dados()
                 navegador.close()
         except Exception as e:
             print(f"Erro ao abrir o navegador: {e}")
+
+    def extrair_dados(self):
+        for nome_estado, caminho in self.estados.items():
+            try:
+                url_estado = f"{self.link}{caminho}/panorama"
+                print(f"\nURL: {url_estado}")
+                self.pagina.goto(url_estado, timeout=60000)
+
+                seletor_territorio = "section#dados"
+                self.pagina.wait_for_selector(seletor_territorio, timeout=60000)
+                self.pagina.wait_for_timeout(2000)
+
+                territorio = self.pagina.query_selector_all(seletor_territorio + " div.topo__celula-direita")
+                dados = {"Estado": nome_estado}
+
+                print(f"Extraindo dados de {nome_estado}...")
+
+                for bloco in territorio:
+                    try:
+                        titulo = bloco.query_selector("p.topo__titulo") or bloco.query_selector("h3.topo__titulo")
+                        valor = bloco.query_selector("p.topo__valor")
+                        if titulo and valor:
+                            titulo_texto = titulo.inner_text().strip()
+                            valor_texto = valor.inner_text().strip()
+                            dados[titulo_texto] = valor_texto
+                            print(f"{titulo_texto}: {valor_texto}")
+                    except Exception as e:
+                        print(f"Erro ao extrair dados do bloco de território: {e}")
+                        continue
+
+                self.dados_estados.append(dados)
+                print(f" Dados extraídos com sucesso para {nome_estado}.")
+
+            except Exception as e:
+                print(f"Erro ao processar {nome_estado}: {e}")
+
 Desafio()
