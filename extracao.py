@@ -1,6 +1,6 @@
 import pandas as pd
 from playwright.sync_api import sync_playwright
-
+from datetime import datetime
 class Desafio:
     def __init__(self):
         self.link = "https://cidades.ibge.gov.br/brasil/"
@@ -41,6 +41,7 @@ class Desafio:
                 navegador = p.chromium.launch(headless=True)
                 self.pagina = navegador.new_page()
                 self.extrair_dados()
+                self.salvar_dados()
                 navegador.close()
         except Exception as e:
             print(f"Erro ao abrir o navegador: {e}")
@@ -96,5 +97,15 @@ class Desafio:
 
             except Exception as e:
                 print(f"Erro ao processar {nome_estado}: {e}")
+
+    def salvar_dados(self, nome_arquivo="dados_ibge.xlsx"):
+        try:
+            nome_arquivo = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{nome_arquivo}"
+
+            df = pd.DataFrame(self.dados_estados)
+            df.to_excel(nome_arquivo, index=False)
+            print(f" Arquivo Excel salvo como '{nome_arquivo}'")
+        except Exception as e:
+            print(f"Erro ao salvar Excel: {e}")
 
 Desafio()
