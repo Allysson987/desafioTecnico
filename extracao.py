@@ -73,7 +73,24 @@ class Desafio:
                     except Exception as e:
                         print(f"Erro ao extrair dados do bloco de território: {e}")
                         continue
+                        
+                tabela_populacao = self.pagina.query_selector_all(seletor_territorio + " table.lista tr.lista__indicador")
+                for linha in tabela_populacao:
+                    try:
+                        colunas = linha.query_selector_all("td")
+                        if len(colunas) >= 2:
+                            nome = colunas[1].inner_text().strip()  
+                            valor = colunas[2].inner_text().strip() 
+                            dados[nome] = valor
+                            print(f"{nome}: {valor}")
+                    except Exception as e:
+                        print(f"Erro ao extrair dados da população: {e}")
 
+                self.dados_estados.append(dados)
+                
+                print(f"✔ Dados extraídos de {nome_estado}")
+            except Exception as e:
+                print(f"❌ Erro ao extrair dados de {nome_estado}: {e}")
                 self.dados_estados.append(dados)
                 print(f" Dados extraídos com sucesso para {nome_estado}.")
 
