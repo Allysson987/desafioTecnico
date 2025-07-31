@@ -98,14 +98,44 @@ class Desafio:
             except Exception as e:
                 print(f"Erro ao processar {nome_estado}: {e}")
 
-    def salvar_dados(self, nome_arquivo="dados_ibge.xlsx"):
-        try:
-            nome_arquivo = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{nome_arquivo}"
 
+
+    def salvar_dados(self, nome_base_arquivo="dados_ibge.xlsx"):
+        try:
+            nome_arquivo_com_data = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{nome_base_arquivo}"
             df = pd.DataFrame(self.dados_estados)
-            df.to_excel(nome_arquivo, index=False)
-            print(f" Arquivo Excel salvo como '{nome_arquivo}'")
+
+           
+            mapeamento_colunas = {
+                'Área da unidade territorial [2024]': 'Área territorial',
+                
+                'População no último censo [2022]': 'População no último censo',
+                'População estimada [2024]': 'População estimada',
+                'Densidade demográfica [2022]': 'Densidade demográfica',
+                'Salário médio mensal dos trabalhadores formais [2022]': 'Salário médio mensal',
+                'PIB per capita [2022]': 'PIB per capita',
+                'IDHM Índice de desenvolvimento humano municipal [2010]': 'IDHM',
+                'Mortalidade infantil [2023]': 'Taxa de mortalidade infantil',
+                'Receitas realizadas [2017]': 'Receitas realizadas',
+                'Despesas empenhadas [2017]': 'Despesas empenhadas',
+                'Escolarização de 6 a 14 anos de idade [2010]': 'Escolarização de 6 a 14 anos',
+                'Taxa de fecundidade total [2021]': 'Taxa de fecundidade',
+                'Domicílios com lixo coletado [2022]': 'Domicílios com lixo coletado diretamente',
+                'Domicílios com rede geral de abastecimento de água [2022]': 'Domicílios com rede geral como principal forma de abastecimento de água',
+                'Domicílios com esgotamento sanitário (Rede geral ou fossa séptica ligada à rede) [2022]': 'Domicílios com esgotamento sanitário (Rede geral ou fossa séptica ligada à rede)',
+                'Domicílios com iluminação elétrica [2015]': 'Domicílios com iluminação elétrica',
+                'Domicílios com microcomputador ou tablet [2021]': 'Domicílios com microcomputador ou tablet',
+                'Domicílios com acesso à Internet [2021]': 'Domicílios com acesso à Internet',
+                'Domicílios com telefone móvel celular [2021]': 'Domicílios com telefone móvel celular',
+                'Domicílios com televisão [2021]': 'Domicílios com televisão'
+            }
+            
+            df = df.rename(columns=mapeamento_colunas)
+    
+            
+            df.to_excel(nome_arquivo_com_data, index=False)
+            print(f"✔ Arquivo Excel salvo como '{nome_arquivo_com_data}'")
         except Exception as e:
-            print(f"Erro ao salvar Excel: {e}")
+            print(f"❌ Erro ao salvar o arquivo Excel: {e}")
 
 Desafio()
