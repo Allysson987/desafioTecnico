@@ -16,7 +16,7 @@ class Desafio:
             "Ceará": "ce/",
             "Distrito Federal": "df/",
             "Espírito Santo": "es/",
-            "Goiás": "go/goias",
+            "Goiás": "go/",
             "Maranhão": "ma/",
             "Mato Grosso": "mt/",
             "Mato Grosso do Sul": "ms/",
