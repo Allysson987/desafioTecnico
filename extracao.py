@@ -64,7 +64,7 @@ class Desafio:
         for nome_estado, caminho in self.estados.items():
             self.verificar_conexao()
             try:
-                url_estado = f"{self.link}{caminho}/panorama"
+                url_estado = f"{self.link}{caminho}panorama"
                 print(f"\nURL: {url_estado}")
                 self.pagina.goto(url_estado, timeout=60000)
                 self.pagina.wait_for_timeout(4000)
