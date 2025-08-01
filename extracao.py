@@ -8,7 +8,7 @@ class Desafio:
     def __init__(self):
         self.link = "https://cidades.ibge.gov.br/brasil/"
         self.estados = {
-            "Acre": "ac/are",
+            "Acre": "ac/",
             "Alagoas": "al/",
             "Amapá": "ap/",
             "Amazonas": "am/",
