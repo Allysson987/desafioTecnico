@@ -1,6 +1,9 @@
 import pandas as pd
 from playwright.sync_api import sync_playwright
 from datetime import datetime
+import requests
+import time
+
 class Desafio:
     def __init__(self):
         self.link = "https://cidades.ibge.gov.br/brasil/"
@@ -34,10 +37,21 @@ class Desafio:
         }
         self.dados_estados = []
         self.abrir_navegador()
-
+    def verificar_conexao(self):
+        url = "https://www.google.com"
+        while True:
+            try:
+                response = requests.get(url, timeout=5)
+                if response.status_code == 200:
+                    print("✅ Internet conectada.")
+                    break
+            except requests.RequestException:
+                print("⛔ Sem conexão. Aguardando reconexão...")
+                time.sleep(5) 
     def abrir_navegador(self):
         try:
             with sync_playwright() as p:
+                self.verificar_conexao
                 navegador = p.chromium.launch(headless=True)
                 self.pagina = navegador.new_page()
                 self.extrair_dados()
@@ -48,15 +62,15 @@ class Desafio:
 
     def extrair_dados(self):
         for nome_estado, caminho in self.estados.items():
+            self.verificar_conexao()
             try:
                 url_estado = f"{self.link}{caminho}/panorama"
                 print(f"\nURL: {url_estado}")
                 self.pagina.goto(url_estado, timeout=60000)
-
+                self.pagina.wait_for_timeout(4000)
                 seletor_territorio = "section#dados"
                 self.pagina.wait_for_selector(seletor_territorio, timeout=60000)
-                self.pagina.wait_for_timeout(2000)
-
+                self.pagina.wait_for_timeout(4000)
                 territorio = self.pagina.query_selector_all(seletor_territorio + " div.topo__celula-direita")
                 dados = {"Estado": nome_estado}
 
@@ -103,12 +117,12 @@ class Desafio:
     def salvar_dados(self, nome_base_arquivo="dados_ibge.xlsx"):
         try:
             nome_arquivo_com_data = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{nome_base_arquivo}"
-            df = pd.DataFrame(self.dados_estados)
+            tabela = pd.DataFrame(self.dados_estados)
 
            
             mapeamento_colunas = {
-                'Área da unidade territorial [2024]': 'Área territorial',
-                
+                'Área da unidade territorial                     [2024]': 'Área territorial',
+                'Taxa de mortalidade infantil [2023]': 'Mortalidade Infantil                     [2023]',
                 'População no último censo [2022]': 'População no último censo',
                 'População estimada [2024]': 'População estimada',
                 'Densidade demográfica [2022]': 'Densidade demográfica',
@@ -129,11 +143,32 @@ class Desafio:
                 'Domicílios com telefone móvel celular [2021]': 'Domicílios com telefone móvel celular',
                 'Domicílios com televisão [2021]': 'Domicílios com televisão'
             }
+
             
-            df = df.rename(columns=mapeamento_colunas)
-    
-            
-            df.to_excel(nome_arquivo_com_data, index=False)
+
+            tabela.columns = tabela.columns.str.replace('\n', ' ').str.strip()
+            tabela = tabela.rename(columns=mapeamento_colunas)
+            print(tabela.columns) 
+            novas_colunas = []
+            novos_nomes = []
+            colunas_processadas = set()
+
+            for i, col in enumerate(tabela.columns):
+                if i in colunas_processadas:
+                    continue
+                iguais = [j for j, c in enumerate(tabela.columns) if c == col]
+
+                colunas_processadas.update(iguais)
+
+                colunas_iguais = tabela.iloc[:, iguais]
+                mesclada = colunas_iguais.bfill(axis=1).iloc[:, 0]
+
+                novas_colunas.append(mesclada)
+                novos_nomes.append(col)
+            tabela_mesclada = pd.concat(novas_colunas, axis=1)
+            tabela_mesclada.columns = novos_nomes
+            pasta = 'dados/'
+            tabela_mesclada.to_excel(pasta+nome_arquivo_com_data, index=False)
             print(f"✔ Arquivo Excel salvo como '{nome_arquivo_com_data}'")
         except Exception as e:
             print(f"❌ Erro ao salvar o arquivo Excel: {e}")
