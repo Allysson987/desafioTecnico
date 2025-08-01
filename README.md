@@ -9,7 +9,8 @@ Este projeto realiza a coleta automatizada de dados dos 27 estados brasileiros a
 - [Playwright](https://playwright.dev/python/) — Automação de navegador.
 - **Pandas** — Salvamento dos dados.
 - **Datetime** —Pegar data e hora atual.
-
+- **Time** - Loop para verificar conexão.
+- **Requests** Testar conexão.
 ---
 
 ## 🧠 Objetivo do Projeto
@@ -70,6 +71,8 @@ git clone https://github.com/Allysson987/desafioTecnico.git
 pip install -r requirements.txt
 pip install pandas 
 pip install datetime
+pip install time
+pip install requests
 playwright install
 ```
 
